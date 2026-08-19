@@ -43,7 +43,7 @@ class JenisController extends Controller
 
         return redirect()
             ->route('admin.jenis.index')
-            ->with('success', 'Jenis berhasil ditambahkan.');
+;
     }
 
     /**
