@@ -621,7 +621,7 @@
                     <div class="biodata-label">Kelas / Jurusan</div>
                     <div>:</div>
                     <div class="biodata-value">
-                        XI PPLG 4
+                        XII PPLG 4
                     </div>
                 </div>
 
