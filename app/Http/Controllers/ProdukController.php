@@ -8,6 +8,7 @@ use App\Http\Requests\SearchRequest;
 use App\Models\Produk;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Jenis;
 
 class ProdukController extends Controller
 {
@@ -36,13 +37,20 @@ class ProdukController extends Controller
      * Show the form for creating a new resource.
      */
     public function create()
-    {
-        $this->authorize('create', Produk::class);
-        $produk = new Produk(); // Dipassing agar _form.blade.php tidak error $produk undefined
-        
-        return view('Produk.create', compact('produk'));
-    }
+{
+    $this->authorize('create', Produk::class);
+    $produk = new Produk();
+    $jenisList = Jenis::orderBy('nama_jenis')->get();
 
+    return view('Produk.create', compact('produk', 'jenisList'));
+}
+
+public function edit(Produk $produk)
+{
+    $jenis = \App\Models\Jenis::orderBy('nama_jenis', 'asc')->get();
+
+    return view('produk.edit', compact('produk', 'jenis'));
+}
     /**
      * Store a newly created resource in storage.
      */
@@ -79,12 +87,6 @@ class ProdukController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Produk $produk)
-    {
-        $this->authorize('update', $produk);
-        
-        return view('Produk.edit', compact('produk'));
-    }
 
     /**
      * Update the specified resource in storage.

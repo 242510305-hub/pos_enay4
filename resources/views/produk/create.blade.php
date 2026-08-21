@@ -27,18 +27,25 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="jenis_makanan" class="form-label fw-medium">Jenis Makanan / Kategori <span class="text-danger">*</span></label>
-                            <select class="form-select @error('jenis_makanan') is-invalid @enderror" id="jenis_makanan" name="jenis_makanan" required>
-                                <option value="" disabled selected>-- Pilih Jenis Makanan --</option>
-                                <option value="Makanan Berat" {{ old('jenis_makanan') == 'Makanan Berat' ? 'selected' : '' }}>Makanan Berat</option>
-                                <option value="Makanan Ringan" {{ old('jenis_makanan') == 'Makanan Ringan' ? 'selected' : '' }}>Makanan Ringan / Snack</option>
-                                <option value="Minuman" {{ old('jenis_makanan') == 'Minuman' ? 'selected' : '' }}>Minuman</option>
-                                <option value="Dessert" {{ old('jenis_makanan') == 'Dessert' ? 'selected' : '' }}>Dessert / Penutup</option>
-                            </select>
-                            @error('jenis_makanan')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+    <label for="jenis_id" class="form-label fw-medium">Jenis Produk <span class="text-danger">*</span></label>
+    <select class="form-select @error('jenis_id') is-invalid @enderror" id="jenis_id" name="jenis_id" required>
+        <option value="" disabled {{ old('jenis_id') ? '' : 'selected' }}>-- Pilih Jenis Produk --</option>
+        @foreach ($jenisList as $jenis)
+            <option value="{{ $jenis->id }}" {{ old('jenis_id') == $jenis->id ? 'selected' : '' }}>
+                {{ $jenis->nama_jenis }}
+            </option>
+        @endforeach
+    </select>
+    @error('jenis_id')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+
+    @if ($jenisList->isEmpty())
+        <small class="text-danger d-block mt-1">
+            Belum ada data jenis. <a href="{{ route('admin.jenis.create') }}">Tambah jenis dulu</a>.
+        </small>
+    @endif
+</div>
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">

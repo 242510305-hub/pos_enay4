@@ -561,7 +561,7 @@
             {{-- =========================
                  PAGINATION
             ========================= --}}
-            @if($products->hasPages())
+            <!-- @if($products->hasPages())
 
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 pt-3 border-top gap-2">
 
@@ -604,7 +604,7 @@
 
     </div>
 
-</div>
+</div> -->
 
 
 @endsection

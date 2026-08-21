@@ -559,7 +559,7 @@
 
 
             
-            <?php if($products->hasPages()): ?>
+            <!-- <?php if($products->hasPages()): ?>
 
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 pt-3 border-top gap-2">
 
@@ -606,7 +606,7 @@
 
     </div>
 
-</div>
+</div> -->
 
 
 <?php $__env->stopSection(); ?>

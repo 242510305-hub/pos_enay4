@@ -41,32 +41,40 @@ unset($__errorArgs, $__bag); ?>
                         </div>
 
                         <div class="mb-3">
-                            <label for="jenis_makanan" class="form-label fw-medium">Jenis Makanan / Kategori <span class="text-danger">*</span></label>
-                            <select class="form-select <?php $__errorArgs = ['jenis_makanan'];
+    <label for="jenis_id" class="form-label fw-medium">Jenis Produk <span class="text-danger">*</span></label>
+    <select class="form-select <?php $__errorArgs = ['jenis_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" id="jenis_makanan" name="jenis_makanan" required>
-                                <option value="" disabled selected>-- Pilih Jenis Makanan --</option>
-                                <option value="Makanan Berat" <?php echo e(old('jenis_makanan') == 'Makanan Berat' ? 'selected' : ''); ?>>Makanan Berat</option>
-                                <option value="Makanan Ringan" <?php echo e(old('jenis_makanan') == 'Makanan Ringan' ? 'selected' : ''); ?>>Makanan Ringan / Snack</option>
-                                <option value="Minuman" <?php echo e(old('jenis_makanan') == 'Minuman' ? 'selected' : ''); ?>>Minuman</option>
-                                <option value="Dessert" <?php echo e(old('jenis_makanan') == 'Dessert' ? 'selected' : ''); ?>>Dessert / Penutup</option>
-                            </select>
-                            <?php $__errorArgs = ['jenis_makanan'];
+unset($__errorArgs, $__bag); ?>" id="jenis_id" name="jenis_id" required>
+        <option value="" disabled <?php echo e(old('jenis_id') ? '' : 'selected'); ?>>-- Pilih Jenis Produk --</option>
+        <?php $__currentLoopData = $jenisList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $jenis): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <option value="<?php echo e($jenis->id); ?>" <?php echo e(old('jenis_id') == $jenis->id ? 'selected' : ''); ?>>
+                <?php echo e($jenis->nama_jenis); ?>
+
+            </option>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+    </select>
+    <?php $__errorArgs = ['jenis_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <div class="invalid-feedback"><?php echo e($message); ?></div>
-                            <?php unset($message);
+        <div class="invalid-feedback"><?php echo e($message); ?></div>
+    <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                        </div>
+
+    <?php if($jenisList->isEmpty()): ?>
+        <small class="text-danger d-block mt-1">
+            Belum ada data jenis. <a href="<?php echo e(route('admin.jenis.create')); ?>">Tambah jenis dulu</a>.
+        </small>
+    <?php endif; ?>
+</div>
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
