@@ -28,7 +28,7 @@ class ProdukController extends Controller
             $query->latest();
         }
 
-        $products = $query->paginate(10)->withQueryString();
+        $products = $query->with(['jenis', 'user'])->paginate(10)->withQueryString();
 
         return view('Produk.index', compact('products'));
     }
