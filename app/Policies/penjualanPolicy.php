@@ -15,7 +15,6 @@ class PenjualanPolicy
 
     public function view(User $user, Penjualan $penjualan): bool
     {
-        return $user->role->name === 'admin'
-            && $penjualan->status === 'OPEN';
+        return $user->role->name === 'admin';
     }
 }

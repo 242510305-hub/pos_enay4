@@ -439,15 +439,31 @@
 
                                 @can('view', $sale)
 
+                                    @if($isLunas && auth()->user()->role->name === 'admin')
+
                                     <a
-                                        href="{{ route('admin.penjualan.edit', $sale->id) }}"
-                                        class="btn btn-sm btn-secondary"
-                                        title="Edit"
+                                        href="{{ route('admin.penjualan.show', $sale->id) }}"
+                                        class="btn btn-sm btn-primary"
+                                        title="Detail struk"
                                     >
 
-                                        <i class="bi bi-pencil-fill"></i>
+                                        <i class="bi bi-receipt"></i>
 
                                     </a>
+
+                                    @elseif(!$isLunas)
+
+                                        <a
+                                            href="{{ route('admin.penjualan.edit', $sale->id) }}"
+                                            class="btn btn-sm btn-secondary"
+                                            title="Edit"
+                                        >
+
+                                            <i class="bi bi-pencil-fill"></i>
+
+                                        </a>
+
+                                    @endif
 
                                 @endcan
 

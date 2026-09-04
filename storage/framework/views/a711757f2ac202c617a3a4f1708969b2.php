@@ -454,15 +454,31 @@
 
                                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('view', $sale)): ?>
 
+                                    <?php if($isLunas && auth()->user()->role->name === 'admin'): ?>
+
                                     <a
-                                        href="<?php echo e(route('admin.penjualan.edit', $sale->id)); ?>"
-                                        class="btn btn-sm btn-secondary"
-                                        title="Edit"
+                                        href="<?php echo e(route('admin.penjualan.show', $sale->id)); ?>"
+                                        class="btn btn-sm btn-primary"
+                                        title="Detail struk"
                                     >
 
-                                        <i class="bi bi-pencil-fill"></i>
+                                        <i class="bi bi-receipt"></i>
 
                                     </a>
+
+                                    <?php elseif(!$isLunas): ?>
+
+                                        <a
+                                            href="<?php echo e(route('admin.penjualan.edit', $sale->id)); ?>"
+                                            class="btn btn-sm btn-secondary"
+                                            title="Edit"
+                                        >
+
+                                            <i class="bi bi-pencil-fill"></i>
+
+                                        </a>
+
+                                    <?php endif; ?>
 
                                 <?php endif; ?>
 

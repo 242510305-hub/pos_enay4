@@ -79,11 +79,13 @@ class PenjualanController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Penjualan $penjualan)
     {
-        $sale = Penjualan::with('user')->findOrFail($id);
+        abort_if(strtoupper((string) $penjualan->status) !== 'COMPLETED', 404);
 
-        return view('penjualan.edit', compact('sale'));
+        $penjualan->load(['user', 'itemPenjualan.produk']);
+
+        return view('penjualan.struk', ['sale' => $penjualan]);
     }
 
     /**
