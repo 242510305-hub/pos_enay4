@@ -15,21 +15,21 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
     public function index(SearchRequest $request)
-{
-    $keyword = $request->input('search');
+    {
+        $keyword = $request->input('search');
 
-    if ($keyword) {
-        $users = User::whereRaw(
-            "MATCH(name, email) AGAINST(? IN BOOLEAN MODE)", 
-            [$keyword]
-        )
-        ->paginate(10)
-        ->withQueryString();
-    } else {
-        $users = User::query()
-            ->paginate(10)
-            ->withQueryString();
-    }
+        if ($keyword) {
+            $users = User::where(function ($query) use ($keyword) {
+                $query->where('name', 'like', "%{$keyword}%")
+                    ->orWhere('email', 'like', "%{$keyword}%");
+            })
+                ->paginate(10)
+                ->withQueryString();
+        } else {
+            $users = User::query()
+                ->paginate(10)
+                ->withQueryString();
+        }
         return view('users.index', compact('users'));
     }
 
@@ -55,7 +55,7 @@ class UserController extends Controller
         User::create($data);
 
         return redirect()
-            ->route('admin.users') 
+            ->route('admin.users')
             ->with('success', 'User berhasil dibuat');
     }
 
@@ -64,10 +64,10 @@ class UserController extends Controller
      */
     public function edit(user $user)
     {
-         // menerima data user yang akan di edit
-    $roles = Role::all(); // mengambil semua data role
+        // menerima data user yang akan di edit
+        $roles = Role::all(); // mengambil semua data role
 
-    return view('users.edit', compact('user', 'roles'));
+        return view('users.edit', compact('user', 'roles'));
     }
 
     /**
@@ -77,51 +77,51 @@ class UserController extends Controller
     {
         $dataReq = $request->validated(); // validasi data dari form input
 
-         $user->name = $dataReq['name'];
-         $user->email = $dataReq['email'];
-         $user->role_id = $dataReq['role_id'];
+        $user->name = $dataReq['name'];
+        $user->email = $dataReq['email'];
+        $user->role_id = $dataReq['role_id'];
 
-    // jika password diisi maka update password
-    if (!empty($dataReq['password'])) {
-        $user->password = Hash::make($dataReq['password']);
+        // jika password diisi maka update password
+        if (!empty($dataReq['password'])) {
+            $user->password = Hash::make($dataReq['password']);
+        }
+
+        $user->save();
+
+        return redirect()
+            ->route('admin.users.edit', $user->id)
+            ->with('success', 'User updated');
     }
+    /**
+     * Remove the specified resource from storage
+     */
+    public function destroy(User $user)
+    {
+        // Cek apakah user masih memiliki transaksi
+        $jumlahPenjualan = \App\Models\Penjualan::where('user_id', $user->id)->count();
 
-    $user->save(); 
+        if ($jumlahPenjualan > 0) {
+            return redirect()
+                ->route('admin.users')
+                ->with(
+                    'error',
+                    'User tidak dapat dihapus karena masih memiliki ' .
+                    $jumlahPenjualan .
+                    ' transaksi penjualan.'
+                );
+        }
 
-    return redirect()
-        ->route('admin.users.edit', $user->id)
-        ->with('success', 'User updated');
-    }
- /**
-  * Remove the specified resource from storage
-  */
-  public function destroy(User $user)
-{
-    // Cek apakah user masih memiliki transaksi
-    $jumlahPenjualan = \App\Models\Penjualan::where('user_id', $user->id)->count();
+        // Jangan izinkan menghapus akun yang sedang login
+        if (auth()->id() == $user->id) {
+            return redirect()
+                ->route('admin.users')
+                ->with('error', 'Anda tidak dapat menghapus akun yang sedang digunakan.');
+        }
 
-    if ($jumlahPenjualan > 0) {
+        $user->delete();
+
         return redirect()
             ->route('admin.users')
-            ->with(
-                'error',
-                'User tidak dapat dihapus karena masih memiliki ' .
-                $jumlahPenjualan .
-                ' transaksi penjualan.'
-            );
+            ->with('success', 'User berhasil dihapus.');
     }
-
-    // Jangan izinkan menghapus akun yang sedang login
-    if (auth()->id() == $user->id) {
-        return redirect()
-            ->route('admin.users')
-            ->with('error', 'Anda tidak dapat menghapus akun yang sedang digunakan.');
-    }
-
-    $user->delete();
-
-    return redirect()
-        ->route('admin.users')
-        ->with('success', 'User berhasil dihapus.');
 }
- }
