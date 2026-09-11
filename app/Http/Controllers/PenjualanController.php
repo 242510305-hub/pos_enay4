@@ -31,7 +31,7 @@ class PenjualanController extends Controller
                 });
             })
             // Relasi user agar lebih efisien
-            ->with('user')
+            ->with('user.role')
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -58,8 +58,8 @@ class PenjualanController extends Controller
         $keyword = $request->input('search');
 
         $products = Produk::when($keyword, function ($query) use ($keyword) {
-                $query->where('nama', 'like', '%' . $keyword . '%');
-            })
+            $query->where('nama', 'like', '%' . $keyword . '%');
+        })
             ->orderBy('nama')
             ->get();
 
@@ -109,10 +109,9 @@ class PenjualanController extends Controller
      */
     public function update(Request $request, Penjualan $penjualan)
     {
-        // Mendukung kedua nama field (payment_method atau metode_pembayaran) untuk mencegah gagal validasi
         $request->validate([
-            'payment_method' => 'sometimes|required|in:CASH,QRIS',
-            'metode_pembayaran' => 'sometimes|required|in:CASH,QRIS',
+            'payment_method' => 'required|in:CASH,QRIS',
+            'uang_dibayar' => 'nullable|integer|min:0',
         ]);
 
         if ($penjualan->status != 'OPEN') {
@@ -123,16 +122,28 @@ class PenjualanController extends Controller
             return back()->with('error', 'Keranjang masih kosong. Tambahkan produk terlebih dahulu.');
         }
 
-        $paymentMethod = $request->input('payment_method') ?? $request->input('metode_pembayaran', 'CASH');
+        $paymentMethod = $request->input('payment_method');
+        $total = (int) $penjualan->itemPenjualan()->sum('subtotal');
+        $uangDibayar = $paymentMethod === 'CASH'
+            ? (int) $request->input('uang_dibayar', 0)
+            : $total;
 
-        DB::transaction(function () use ($penjualan, $paymentMethod) {
+        if ($paymentMethod === 'CASH' && $uangDibayar < $total) {
+            return back()
+                ->withInput()
+                ->withErrors(['uang_dibayar' => 'Uang dibayar harus minimal sebesar total pembayaran.']);
+        }
+
+        $kembalian = $uangDibayar - $total;
+
+        DB::transaction(function () use ($penjualan, $paymentMethod, $total, $uangDibayar, $kembalian) {
             // Hitung ulang total (anti manipulasi)
-            $total = $penjualan->itemPenjualan()->sum('subtotal');
-
             $penjualan->update([
                 'metode_pembayaran' => $paymentMethod,
-                'total_pembayaran'  => $total,
-                'status'            => 'COMPLETED'
+                'total_pembayaran' => $total,
+                'uang_dibayar' => $uangDibayar,
+                'kembalian' => $kembalian,
+                'status' => 'COMPLETED'
             ]);
         });
 
@@ -147,7 +158,7 @@ class PenjualanController extends Controller
     public function destroy(Penjualan $penjualan)
     {
         $this->authorize('delete', $penjualan);
-        
+
         // Pastikan hanya transaksi OPEN
         if ($penjualan->status != 'OPEN') {
             return redirect()->route('admin.penjualan.create')

@@ -293,7 +293,7 @@
                             </th>
 
                             <th scope="col">
-                                Harga Beli
+                                Harga pokok
                             </th>
 
                             <th scope="col">

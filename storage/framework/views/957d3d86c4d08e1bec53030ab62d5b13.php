@@ -152,7 +152,7 @@ unset($__errorArgs, $__bag); ?>
 <div class="mb-3">
 
     <label class="form-label font-weight-bold">
-        Harga Beli
+        Harga Pokok
     </label>
 
     <input type="number"

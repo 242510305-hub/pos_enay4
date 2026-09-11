@@ -953,6 +953,7 @@
 
 
                             <select name="payment_method"
+                                    id="payment-method"
                                     class="form-select payment-select"
                                     required
                                     {{ $sale->status === 'COMPLETED' ? 'disabled' : '' }}>
@@ -961,15 +962,51 @@
                                     Pilih Pembayaran
                                 </option>
 
-                                <option value="CASH">
+                                <option value="CASH" {{ old('payment_method', $sale->metode_pembayaran) === 'CASH' ? 'selected' : '' }}>
                                     💵 CASH
                                 </option>
 
-                                <option value="QRIS">
+                                <option value="QRIS" {{ old('payment_method', $sale->metode_pembayaran) === 'QRIS' ? 'selected' : '' }}>
                                     📱 QRIS
                                 </option>
 
                             </select>
+
+                            <div id="qris-panel" class="mt-3 p-3 rounded border text-center bg-light d-none">
+                                <div class="fw-bold text-primary mb-2">
+                                    <i class="bi bi-qr-code me-1"></i>
+                                    Pembayaran QRIS
+                                </div>
+                                <div class="small text-muted">
+                                    Pilih QRIS sebagai metode pembayaran transaksi ini.
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <label for="uang-dibayar" class="payment-label">
+                                    <i class="bi bi-wallet2 me-1"></i>
+                                    Uang Dibayar
+                                </label>
+                                <input type="number"
+                                       name="uang_dibayar"
+                                       id="uang-dibayar"
+                                       class="form-control"
+                                       min="0"
+                                       step="1"
+                                       value="{{ old('uang_dibayar', $sale->uang_dibayar) }}"
+                                       placeholder="Masukkan nominal uang"
+                                       {{ $sale->status === 'COMPLETED' ? 'disabled' : '' }}>
+                                @error('uang_dibayar')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mt-3 p-3 rounded bg-light d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold">Kembalian</span>
+                                <strong id="kembalian-display" class="text-success">
+                                    Rp {{ number_format($sale->kembalian ?? 0, 0, ',', '.') }}
+                                </strong>
+                            </div>
 
 
                             <button type="submit"
@@ -1025,5 +1062,30 @@
     </div>
 
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const paymentMethod = document.getElementById('payment-method');
+        const amountInput = document.getElementById('uang-dibayar');
+        const changeDisplay = document.getElementById('kembalian-display');
+        const total = {{ (int) $sale->total_pembayaran }};
+
+        function updateChange() {
+            const isCash = paymentMethod.value === 'CASH';
+            const amount = isCash ? Number(amountInput.value || 0) : total;
+            const change = Math.max(0, amount - total);
+
+            document.getElementById('qris-panel').classList.toggle('d-none', paymentMethod.value !== 'QRIS');
+
+            amountInput.required = isCash;
+            amountInput.disabled = !isCash || {{ $sale->status === 'COMPLETED' ? 'true' : 'false' }};
+            changeDisplay.textContent = 'Rp ' + change.toLocaleString('id-ID');
+        }
+
+        paymentMethod.addEventListener('change', updateChange);
+        amountInput.addEventListener('input', updateChange);
+        updateChange();
+    });
+</script>
 
 @endsection

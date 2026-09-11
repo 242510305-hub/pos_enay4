@@ -14,8 +14,16 @@ class Penjualan extends Model
     protected $fillable = [
         'user_id',
         'total_pembayaran',
+        'uang_dibayar',
+        'kembalian',
         'metode_pembayaran',
         'status'
+    ];
+
+    protected $casts = [
+        'total_pembayaran' => 'integer',
+        'uang_dibayar' => 'integer',
+        'kembalian' => 'integer',
     ];
 
     public function user()
@@ -25,6 +33,6 @@ class Penjualan extends Model
 
     public function itemPenjualan()
     {
-        return $this->hasMany(ItemPenjualan::class,'penjualan_id');
+        return $this->hasMany(ItemPenjualan::class, 'penjualan_id');
     }
 }

@@ -21,8 +21,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Route tentang (Hanya bisa diakses setelah login)
-   Route::get('/jenis', function () {return view('jenis');})->name('jenis');
-    Route::get('/tentang', function () {return view('tentang');})->name('tentang');
+    Route::get('/jenis', function () {
+        return view('jenis'); })->name('jenis');
+    Route::get('/tentang', function () {
+        return view('tentang'); })->name('tentang');
 
     // Admin Only
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
@@ -32,11 +34,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/users/edit/{user}', [UserController::class, 'edit'])->name('users.edit');
         Route::post('/users/update/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-        Route::resource('jenis', JenisController::class);
+        Route::resource('jenis', JenisController::class)->except(['index', 'show']);
     });
 
     // Admin & Kasir
     Route::middleware('role:admin,kasir')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/jenis', [JenisController::class, 'index'])->name('jenis.index');
+        Route::get('/jenis/{jeni}', [JenisController::class, 'show'])->name('jenis.show');
         Route::resource('produk', ProdukController::class);
         Route::resource('penjualan', PenjualanController::class);
         Route::resource('itempenjualan', ItemPenjualanController::class);

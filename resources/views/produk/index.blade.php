@@ -301,7 +301,7 @@
                             </th>
 
                             <th scope="col">
-                                Harga Beli
+                                Harga pokok
                             </th>
 
                             <th scope="col">
@@ -414,7 +414,7 @@
                                 </td>
 
 
-                                {{-- HARGA BELI --}}
+                                {{-- HARGA pokok --}}
                                 <td class="text-muted small">
 
                                     Rp

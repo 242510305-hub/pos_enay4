@@ -78,7 +78,7 @@ unset($__errorArgs, $__bag); ?>
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label for="harga_beli" class="form-label fw-medium">Harga Beli (Rp) <span class="text-danger">*</span></label>
+                                <label for="harga_beli" class="form-label fw-medium">Harga pokok (Rp) <span class="text-danger">*</span></label>
                                 <input type="number" class="form-control <?php $__errorArgs = ['harga_beli'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :

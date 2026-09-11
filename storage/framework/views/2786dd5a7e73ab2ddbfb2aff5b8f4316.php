@@ -963,6 +963,7 @@
 
 
                             <select name="payment_method"
+                                    id="payment-method"
                                     class="form-select payment-select"
                                     required
                                     <?php echo e($sale->status === 'COMPLETED' ? 'disabled' : ''); ?>>
@@ -971,15 +972,59 @@
                                     Pilih Pembayaran
                                 </option>
 
-                                <option value="CASH">
+                                <option value="CASH" <?php echo e(old('payment_method', $sale->metode_pembayaran) === 'CASH' ? 'selected' : ''); ?>>
                                     💵 CASH
                                 </option>
 
-                                <option value="QRIS">
+                                <option value="QRIS" <?php echo e(old('payment_method', $sale->metode_pembayaran) === 'QRIS' ? 'selected' : ''); ?>>
                                     📱 QRIS
                                 </option>
 
                             </select>
+
+                            <div id="qris-panel" class="mt-3 p-3 rounded border text-center bg-light d-none">
+                                <div class="fw-bold text-primary mb-2">
+                                    <i class="bi bi-qr-code me-1"></i>
+                                    Pembayaran QRIS
+                                </div>
+                                <div class="small text-muted">
+                                    Pilih QRIS sebagai metode pembayaran transaksi ini.
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <label for="uang-dibayar" class="payment-label">
+                                    <i class="bi bi-wallet2 me-1"></i>
+                                    Uang Dibayar
+                                </label>
+                                <input type="number"
+                                       name="uang_dibayar"
+                                       id="uang-dibayar"
+                                       class="form-control"
+                                       min="0"
+                                       step="1"
+                                       value="<?php echo e(old('uang_dibayar', $sale->uang_dibayar)); ?>"
+                                       placeholder="Masukkan nominal uang"
+                                       <?php echo e($sale->status === 'COMPLETED' ? 'disabled' : ''); ?>>
+                                <?php $__errorArgs = ['uang_dibayar'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                    <div class="text-danger small mt-1"><?php echo e($message); ?></div>
+                                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                            </div>
+
+                            <div class="mt-3 p-3 rounded bg-light d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold">Kembalian</span>
+                                <strong id="kembalian-display" class="text-success">
+                                    Rp <?php echo e(number_format($sale->kembalian ?? 0, 0, ',', '.')); ?>
+
+                                </strong>
+                            </div>
 
 
                             <button type="submit"
@@ -1035,6 +1080,31 @@
     </div>
 
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const paymentMethod = document.getElementById('payment-method');
+        const amountInput = document.getElementById('uang-dibayar');
+        const changeDisplay = document.getElementById('kembalian-display');
+        const total = <?php echo e((int) $sale->total_pembayaran); ?>;
+
+        function updateChange() {
+            const isCash = paymentMethod.value === 'CASH';
+            const amount = isCash ? Number(amountInput.value || 0) : total;
+            const change = Math.max(0, amount - total);
+
+            document.getElementById('qris-panel').classList.toggle('d-none', paymentMethod.value !== 'QRIS');
+
+            amountInput.required = isCash;
+            amountInput.disabled = !isCash || <?php echo e($sale->status === 'COMPLETED' ? 'true' : 'false'); ?>;
+            changeDisplay.textContent = 'Rp ' + change.toLocaleString('id-ID');
+        }
+
+        paymentMethod.addEventListener('change', updateChange);
+        amountInput.addEventListener('input', updateChange);
+        updateChange();
+    });
+</script>
 
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\pos_enay4\resources\views\penjualan\pos.blade.php ENDPATH**/ ?>
